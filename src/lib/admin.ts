@@ -22,14 +22,17 @@ export async function requireAdmin() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // The flag itself isn't readable through the API; ask the database instead.
+  const { data: isAdmin } = await supabase.rpc("is_superadmin");
+  if (isAdmin !== true) redirect("/denied");
+
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, first_name, last_name, avatar_url, is_superadmin")
+    .select("id, first_name, last_name, avatar_url")
     .eq("id", user.id)
-    .maybeSingle<AdminProfile>();
-  if (!profile?.is_superadmin) redirect("/denied");
+    .maybeSingle<Omit<AdminProfile, "is_superadmin">>();
 
-  return { supabase, user, profile };
+  return { supabase, user, profile: { ...(profile ?? { id: user.id, first_name: null, last_name: null, avatar_url: null }), is_superadmin: true } };
 }
 
 export function shortName(first: string | null | undefined, last: string | null | undefined) {

@@ -9,6 +9,11 @@ alter table public.profiles
 revoke update on public.profiles from authenticated;
 grant update (first_name, last_name, avatar_url, updated_at) on public.profiles to authenticated;
 
+-- Hide who is an admin: profiles stay publicly readable, but not this column.
+revoke select on public.profiles from anon, authenticated;
+grant select (id, first_name, last_name, avatar_url, created_at, updated_at)
+  on public.profiles to anon, authenticated;
+
 -- 2. One helper every admin rule uses. Runs as owner so it can read the flag.
 create or replace function public.is_superadmin()
 returns boolean
