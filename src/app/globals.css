@@ -1,26 +1,191 @@
 @import "tailwindcss";
 
+/* Lions vs. AI palette: Columbia Blue and navy, with coral for the AI. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --paper: #f5f8fc;
+  --card: #ffffff;
+  --ink: #0b2545;
+  --muted: #5b6b82;
+  --line: #dce5ef;
+  --cu-blue: #b9d9eb;
+  --cu-blue-soft: #e8f2f9;
+  --accent: #1d4f91;
+  --accent-hover: #163d70;
+  --human: #1d4f91;
+  --ai: #d9480f;
+  --ai-soft: #fff1e8;
+  --navy: #0b2545;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --paper: #0a1424;
+    --card: #111f35;
+    --ink: #e8eef6;
+    --muted: #97a6bb;
+    --line: #22344d;
+    --cu-blue: #8ec3e6;
+    --cu-blue-soft: #15304f;
+    --accent: #3b78c4;
+    --accent-hover: #4d89d4;
+    --human: #8ec3e6;
+    --ai: #ff8a5c;
+    --ai-soft: #3a1d12;
+    --navy: #07101e;
   }
 }
 
+@theme inline {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-cu-blue: var(--cu-blue);
+  --color-cu-blue-soft: var(--cu-blue-soft);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-human: var(--human);
+  --color-ai: var(--ai);
+  --color-ai-soft: var(--ai-soft);
+  --color-navy: var(--navy);
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-caslon);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Shared building blocks */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: background-color 120ms, opacity 120ms, transform 80ms;
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.99);
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+.btn-secondary {
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--cu-blue-soft);
+}
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.field {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  padding: 0.625rem 0.875rem;
+}
+.field:focus {
+  outline: 2px solid var(--cu-blue);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+.field:disabled {
+  opacity: 0.6;
+}
+
+/* Chart series colors, validated for colorblind separation in both modes. */
+:root {
+  --chart-human: #1d4f91;
+  --chart-ai: #d9480f;
+  --chart-grid: #e3eaf2;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --chart-human: #3f86d4;
+    --chart-ai: #e8673a;
+    --chart-grid: #22344d;
+  }
+}
+@theme inline {
+  --color-chart-human: var(--chart-human);
+  --color-chart-ai: var(--chart-ai);
+  --color-chart-grid: var(--chart-grid);
+}
+
+/* Hover tooltip for chart marks. */
+.tip {
+  position: relative;
+}
+.tip > .tip-box {
+  pointer-events: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  border-radius: 0.5rem;
+  background: var(--navy);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.55rem;
+  opacity: 0;
+  transition: opacity 100ms;
+  z-index: 10;
+}
+.tip:hover > .tip-box,
+.tip:focus-visible > .tip-box {
+  opacity: 1;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+.table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+.table tr:last-child td {
+  border-bottom: 0;
 }
