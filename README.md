@@ -10,7 +10,7 @@ Columbia students vote blind between a human caption and an AI caption on each p
 | **Dashboard** | Live stats: totals, Lions vs. AI scoreboard, battles per day, whether caption length matters, which Gemini model wins most, activity by hour, toughest AI captions, best human captions, most active voters |
 | **Users** | Read every profile, with email, role, sign-in times, and activity |
 | **AI media** | Create (upload a photo and Gemini writes the AI caption), read, update (edit caption, prompt, model, context), and delete. Admins can also remove individual human captions |
-| **Votes** | Read every battle and every up/down vote |
+| **Votes** | Read every battle and every up/down vote, including which battle picks were switched |
 
 ## Security
 
