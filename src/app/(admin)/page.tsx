@@ -43,7 +43,7 @@ export default async function Dashboard() {
         <Kpi label="Users" value={t.users} sub={`${t.admins} admin${t.admins === 1 ? "" : "s"}`} />
         <Kpi label="Photos" value={t.photos} sub="each with one AI caption" />
         <Kpi label="Captions" value={t.humanCaptions + t.aiCaptions} sub={`${t.humanCaptions} human · ${t.aiCaptions} AI`} />
-        <Kpi label="Battles" value={t.battles} sub="blind human vs. AI picks" />
+        <Kpi label="Battles" value={t.battles} sub={`${t.switched} pick${t.switched === 1 ? "" : "s"} switched`} />
         <Kpi label="Votes" value={t.votes} sub={`${t.upvotes} up · ${t.votes - t.upvotes} down`} />
       </div>
 

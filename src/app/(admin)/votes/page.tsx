@@ -55,6 +55,9 @@ export default async function VotesPage({ searchParams }: { searchParams: Promis
                     <span className={`rounded-full px-2 py-0.5 text-xs font-bold text-white ${b.winner === "human" ? "bg-chart-human" : "bg-chart-ai"}`}>
                       {b.winner === "human" ? "🦁 Lions" : "🤖 AI"}
                     </span>
+                    {b.changed_at && (
+                      <span className="ml-2 text-xs text-muted" title={`Switched ${fmtDate(b.changed_at)}`}>changed</span>
+                    )}
                   </td>
                 </tr>
               ))}

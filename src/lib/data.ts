@@ -32,6 +32,7 @@ export type Battle = {
   ai_caption_id: string;
   winner: "ai" | "human";
   created_at: string;
+  changed_at: string | null;
 };
 export type Vote = { id: number; caption_id: string; user_id: string; value: number; source: string; created_at: string };
 
@@ -46,7 +47,7 @@ export async function loadAll(supabase: Client) {
       .order("created_at", { ascending: false }),
     supabase
       .from("battles")
-      .select("id, user_id, generation_id, human_caption_id, ai_caption_id, winner, created_at")
+      .select("id, user_id, generation_id, human_caption_id, ai_caption_id, winner, created_at, changed_at")
       .order("created_at", { ascending: false }),
     supabase.from("votes").select("id, caption_id, user_id, value, source, created_at").order("created_at", { ascending: false }),
   ]);

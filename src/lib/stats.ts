@@ -108,6 +108,7 @@ export function computeStats(d: {
       humanCaptions: d.captions.filter((c) => c.author_type === "human").length,
       aiCaptions: d.captions.filter((c) => c.author_type === "ai").length,
       battles: d.battles.length,
+      switched: d.battles.filter((b) => b.changed_at).length,
       votes: d.votes.length,
       upvotes: d.votes.filter((v) => v.value > 0).length,
       humanWins,
