@@ -52,7 +52,7 @@ export const RESOURCES = {
     table: "llm_models",
     title: "LLM models",
     singular: "model",
-    description: "Models the pipeline tries, lowest priority number first. Inactive models are skipped.",
+    description: "Models the pipeline tries, lowest priority number first. Inactive models are skipped. Prices feed the cost estimates on the dashboard.",
     orderBy: "priority",
     ascending: true,
     fields: [
@@ -60,6 +60,8 @@ export const RESOURCES = {
       { name: "model_id", label: "Model ID", type: "text", required: true, placeholder: "gemini-3.5-flash" },
       { name: "display_name", label: "Display name", type: "text" },
       { name: "priority", label: "Priority", type: "number", required: true },
+      { name: "input_usd_per_mtok", label: "Input $ / 1M tokens", type: "number", placeholder: "1.50" },
+      { name: "output_usd_per_mtok", label: "Output $ / 1M tokens", type: "number", placeholder: "9.00" },
       { name: "is_active", label: "Active", type: "boolean" },
       { name: "notes", label: "Notes", type: "text" },
     ],

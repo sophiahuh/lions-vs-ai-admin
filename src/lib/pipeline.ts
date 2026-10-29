@@ -90,10 +90,26 @@ async function callGemini(opts: {
       json?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? "").join("") ??
       json?.error?.message ??
       "";
-    return { status: res.status, ok: res.ok && !!text, text, latency: Date.now() - started };
+    // Thinking tokens are billed as output, so they count toward output_tokens.
+    const usage = json?.usageMetadata;
+    return {
+      status: res.status,
+      ok: res.ok && !!text,
+      text,
+      latency: Date.now() - started,
+      inputTokens: usage?.promptTokenCount ?? null,
+      outputTokens: usage ? (usage.candidatesTokenCount ?? 0) + (usage.thoughtsTokenCount ?? 0) : null,
+    };
   } catch (err) {
     const timeout = err instanceof Error && err.name === "TimeoutError";
-    return { status: timeout ? 408 : 0, ok: false, text: timeout ? "Timed out" : String(err), latency: Date.now() - started };
+    return {
+      status: timeout ? 408 : 0,
+      ok: false,
+      text: timeout ? "Timed out" : String(err),
+      latency: Date.now() - started,
+      inputTokens: null,
+      outputTokens: null,
+    };
   }
 }
 
@@ -207,6 +223,8 @@ export async function runCaptionPipeline(
           http_status: r.status,
           success: !!parsed,
           latency_ms: r.latency,
+          input_tokens: r.inputTokens,
+          output_tokens: r.outputTokens,
           response_text: r.text.slice(0, 4000),
         });
         if (parsed) {

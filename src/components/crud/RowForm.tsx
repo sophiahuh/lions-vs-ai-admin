@@ -47,7 +47,7 @@ export default function RowForm({
                 ))}
               </select>
             ) : (
-              <input {...common} type={f.type === "number" ? "number" : "text"} defaultValue={value == null ? "" : String(value)} className="field mt-1" />
+              <input {...common} type={f.type === "number" ? "number" : "text"} step={f.type === "number" ? "any" : undefined} defaultValue={value == null ? "" : String(value)} className="field mt-1" />
             )}
           </label>
         );
