@@ -15,7 +15,7 @@ function refresh(chainId?: number) {
 }
 
 function friendly(message: string) {
-  if (/duplicate key/i.test(message)) return "A chain with that name already exists.";
+  if (/duplicate key/i.test(message)) return "A flavor with that name already exists.";
   return message;
 }
 
@@ -23,7 +23,7 @@ function friendly(message: string) {
 export async function createChain(_prev: FormState, fd: FormData): Promise<FormState> {
   const { supabase } = await requireAdmin();
   const name = text(fd, "name");
-  if (!name) return { error: "Give the chain a name." };
+  if (!name) return { error: "Give the flavor a name." };
   const { data, error } = await supabase
     .from("prompt_chains")
     .insert({ name, description: text(fd, "description") || null })
@@ -39,7 +39,7 @@ export async function createChain(_prev: FormState, fd: FormData): Promise<FormS
 export async function updateChain(chainId: number, _prev: FormState, fd: FormData): Promise<FormState> {
   const { supabase } = await requireAdmin();
   const name = text(fd, "name");
-  if (!name) return { error: "The chain needs a name." };
+  if (!name) return { error: "The flavor needs a name." };
   const { error } = await supabase
     .from("prompt_chains")
     .update({ name, description: text(fd, "description") || null })
@@ -53,7 +53,7 @@ export async function updateChain(chainId: number, _prev: FormState, fd: FormDat
 export async function deleteChain(chainId: number): Promise<FormState> {
   const { supabase } = await requireAdmin();
   const { data: mix } = await supabase.from("prompt_chain_mix").select("weight").eq("chain_id", chainId).maybeSingle();
-  if ((mix?.weight ?? 0) > 0) return { error: "Set this chain's weight to 0 in the chain mix before deleting it." };
+  if ((mix?.weight ?? 0) > 0) return { error: "Set this flavor's weight to 0 on the Flavors page before deleting it." };
   const { error } = await supabase.from("prompt_chains").delete().eq("id", chainId);
   if (error) return { error: error.message };
   refresh();

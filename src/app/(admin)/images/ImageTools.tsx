@@ -94,7 +94,7 @@ export function ImageActions({ adminId, path, used }: { adminId: string; path: s
       </button>
       <button
         disabled={pending || used}
-        title={used ? "Used by AI media. Delete the media instead." : undefined}
+        title={used ? "This photo is in a post. Delete the post instead." : undefined}
         onClick={() => {
           if (!confirm("Delete this image? This can't be undone.")) return;
           start(async () => {

@@ -6,37 +6,41 @@ import { usePathname } from "next/navigation";
 const GROUPS = [
   { title: "Overview", links: [{ href: "/", label: "Dashboard" }] },
   {
-    title: "People",
-    links: [
-      { href: "/users", label: "Users" },
-      { href: "/domains", label: "Signup domains" },
-      { href: "/emails", label: "Whitelisted emails" },
-    ],
-  },
-  {
     title: "Content",
     links: [
-      { href: "/media", label: "AI media" },
-      { href: "/images", label: "Images" },
-      { href: "/votes", label: "Votes" },
+      { href: "/media", label: "Posts" },
+      { href: "/votes", label: "Ratings" },
+      { href: "/images", label: "Image files" },
     ],
   },
   {
-    title: "Pipeline",
+    title: "Caption writing",
     links: [
-      { href: "/chains", label: "Prompt chains" },
-      { href: "/mix", label: "Chain mix" },
-      { href: "/terms", label: "Terms" },
-      { href: "/examples", label: "Examples" },
-      { href: "/models", label: "LLM models" },
-      { href: "/providers", label: "LLM providers" },
+      { href: "/chains", label: "Flavors & weights" },
+      { href: "/terms", label: "Columbia terms" },
+      { href: "/examples", label: "Example captions" },
     ],
   },
   {
-    title: "Observability",
+    title: "Models",
     links: [
-      { href: "/requests", label: "Generation requests" },
-      { href: "/responses", label: "LLM responses" },
+      { href: "/models", label: "Models & prices" },
+      { href: "/providers", label: "Providers" },
+    ],
+  },
+  {
+    title: "Logs",
+    links: [
+      { href: "/requests", label: "Caption requests" },
+      { href: "/responses", label: "Model calls" },
+    ],
+  },
+  {
+    title: "Access",
+    links: [
+      { href: "/users", label: "Users" },
+      { href: "/domains", label: "Allowed domains" },
+      { href: "/emails", label: "Allowed emails" },
     ],
   },
 ];

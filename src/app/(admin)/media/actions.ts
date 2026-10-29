@@ -6,28 +6,14 @@ import { requireAdmin } from "@/lib/admin";
 
 export type FormState = { ok?: boolean; error?: string };
 
-/** UPDATE: edit the AI caption text and the saved generation details. */
+/** UPDATE: the poster's context note. AI captions change only by regenerating (see /api/run-flavor). */
 export async function updateMedia(generationId: string, _prev: FormState, formData: FormData): Promise<FormState> {
   const { supabase } = await requireAdmin();
-  const aiCaptionId = String(formData.get("ai_caption_id") ?? "");
-  const body = String(formData.get("body") ?? "").trim();
-  const prompt = String(formData.get("prompt") ?? "").trim();
-  const model = String(formData.get("model") ?? "").trim();
   const context = String(formData.get("context") ?? "").trim();
-
-  if (!body || body.length > 140) return { error: "The AI caption must be 1 to 140 characters." };
-  if (!prompt || !model) return { error: "Prompt and model can't be empty." };
-
-  const { error: capError } = await supabase.from("captions").update({ body }).eq("id", aiCaptionId).eq("author_type", "ai");
-  if (capError) return { error: capError.message };
-  const { error: genError } = await supabase
-    .from("generations")
-    .update({ prompt, model, context: context || null })
-    .eq("id", generationId);
-  if (genError) return { error: genError.message };
-
+  if (context.length > 280) return { error: "Keep the note under 280 characters." };
+  const { error } = await supabase.from("generations").update({ context: context || null }).eq("id", generationId);
+  if (error) return { error: error.message };
   revalidatePath(`/media/${generationId}`);
-  revalidatePath("/media");
   return { ok: true };
 }
 

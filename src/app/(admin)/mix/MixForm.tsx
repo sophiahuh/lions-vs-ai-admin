@@ -9,7 +9,7 @@ export default function MixForm({ rows }: { rows: { chain_id: number; name: stri
   const total = Object.values(weights).reduce((n, w) => n + (Number(w) || 0), 0);
 
   return (
-    <form action={action} className="card mt-6 space-y-5 p-5">
+    <form action={action} className="space-y-5">
       {rows.map((r) => {
         const w = Number(weights[r.chain_id]) || 0;
         const share = total ? Math.round((w / total) * 100) : 0;
@@ -43,7 +43,7 @@ export default function MixForm({ rows }: { rows: { chain_id: number; name: stri
         );
       })}
       <div className="flex flex-wrap items-center gap-3">
-        <button disabled={pending} className="btn btn-primary px-5 py-2.5">{pending ? "Saving…" : "Save mix"}</button>
+        <button disabled={pending} className="btn btn-primary px-5 py-2.5">{pending ? "Saving…" : "Save weights"}</button>
         {state.error && <span className="text-sm text-red-600">{state.error}</span>}
         {state.ok && <span className="text-sm text-human">{state.ok}</span>}
       </div>

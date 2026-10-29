@@ -25,7 +25,7 @@ export default async function UsersPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <p className="eyebrow">Users</p>
+      <p className="eyebrow">Access</p>
       <h1 className="mt-1 font-serif text-4xl font-bold">Profiles</h1>
       <p className="mt-1 text-muted">{d.users.length} accounts. Read-only.</p>
 

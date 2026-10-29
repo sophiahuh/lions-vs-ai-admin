@@ -64,14 +64,14 @@ export function NewChainForm() {
   return (
     <form action={action} className="card mt-6 grid gap-3 p-5 sm:grid-cols-[1fr_2fr_auto] sm:items-end">
       <label className="text-sm">
-        <span className="font-semibold">New chain name</span>
+        <span className="font-semibold">Name</span>
         <input name="name" required placeholder="Setup, then punchline" className="field mt-1" />
       </label>
       <label className="text-sm">
         <span className="font-semibold">What it does</span>
-        <input name="description" placeholder="One line on how this chain writes captions" className="field mt-1" />
+        <input name="description" placeholder="One line on how this flavor writes captions" className="field mt-1" />
       </label>
-      <button disabled={pending} className="btn btn-primary px-4 py-2.5">{pending ? "Creating…" : "Create chain"}</button>
+      <button disabled={pending} className="btn btn-primary px-4 py-2.5">{pending ? "Creating…" : "Create flavor"}</button>
       <div className="sm:col-span-3"><Status state={state} /></div>
     </form>
   );
@@ -90,7 +90,7 @@ export function ChainDetailsForm({ chainId, name, description }: { chainId: numb
         <textarea name="description" defaultValue={description ?? ""} rows={2} className="field mt-1" />
       </label>
       <div className="flex items-center gap-3">
-        <button disabled={pending} className="btn btn-primary px-4 py-2">{pending ? "Saving…" : "Save chain"}</button>
+        <button disabled={pending} className="btn btn-primary px-4 py-2">{pending ? "Saving…" : "Save details"}</button>
         <Status state={state} />
       </div>
     </form>
@@ -183,8 +183,8 @@ export function DeleteChainButton({ chainId }: { chainId: number }) {
   return (
     <ActionButton
       action={deleteChain.bind(null, chainId)}
-      label="Delete chain"
-      confirmText="Delete this chain and all its steps? This can't be undone."
+      label="Delete flavor"
+      confirmText="Delete this flavor and all its steps? This can't be undone."
       className="btn px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
     />
   );

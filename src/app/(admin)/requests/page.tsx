@@ -38,8 +38,8 @@ export default async function RequestsPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="mx-auto max-w-5xl">
-      <p className="eyebrow">Observability</p>
-      <h1 className="mt-1 font-serif text-4xl font-bold">Generation requests</h1>
+      <p className="eyebrow">Logs · generation requests</p>
+      <h1 className="mt-1 font-serif text-4xl font-bold">Caption requests</h1>
       <p className="mt-1 text-muted">Every attempt to generate an AI caption, newest first. Open one to see each model call it made.</p>
       {chainId && (
         <p className="mt-2 text-sm">

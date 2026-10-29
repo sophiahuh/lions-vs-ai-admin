@@ -1,7 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { fmtDate, requireAdmin, shortName } from "@/lib/admin";
+import FlavorRunner from "@/components/FlavorRunner";
+import { fmtDay, requireAdmin, shortName } from "@/lib/admin";
 import { deleteCaption, deleteMedia } from "../actions";
 import EditForm from "./EditForm";
 
@@ -23,13 +24,18 @@ export default async function MediaDetail({ params }: { params: Promise<{ id: st
   const { data: gen } = await supabase
     .from("generations")
     .select(
-      "id, image_url, image_path, context, prompt, model, created_at, poster:profiles(first_name, last_name), captions(id, author_type, author_id, body, upvotes, downvotes, author:profiles(first_name, last_name))"
+      "id, image_url, image_path, context, prompt, model, created_at, flavor:prompt_chains(name), poster:profiles(first_name, last_name), captions(id, author_type, author_id, body, upvotes, downvotes, author:profiles(first_name, last_name))"
     )
     .eq("id", id)
     .maybeSingle();
   if (!gen) notFound();
 
-  const { data: battles } = await supabase.from("battles").select("human_caption_id, winner").eq("generation_id", id);
+  const [{ data: battles }, { data: chains }, { data: models }] = await Promise.all([
+    supabase.from("battles").select("human_caption_id, winner").eq("generation_id", id),
+    supabase.from("prompt_chains").select("id, name").order("id"),
+    supabase.from("llm_models").select("model_id").eq("is_active", true).order("priority"),
+  ]);
+  const flavor = gen.flavor as unknown as { name: string } | null;
   const caps = gen.captions as unknown as Cap[];
   const ai = caps.find((c) => c.author_type === "ai");
   const humans = caps.filter((c) => c.author_type === "human");
@@ -42,10 +48,10 @@ export default async function MediaDetail({ params }: { params: Promise<{ id: st
 
   return (
     <div className="mx-auto max-w-5xl">
-      <Link href="/media" className="text-sm text-muted hover:underline">← AI media</Link>
-      <h1 className="mt-3 font-serif text-3xl font-bold">AI media</h1>
+      <Link href="/media" className="text-sm text-muted hover:underline">← Posts</Link>
+      <h1 className="mt-3 font-serif text-3xl font-bold">Post</h1>
       <p className="mt-1 text-sm text-muted">
-        Posted by {shortName(poster?.first_name, poster?.last_name)} · {fmtDate(gen.created_at)}
+        Posted by {shortName(poster?.first_name, poster?.last_name)} · {fmtDay(gen.created_at)}
       </p>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1.1fr]">
@@ -80,23 +86,56 @@ export default async function MediaDetail({ params }: { params: Promise<{ id: st
         </div>
 
         <div className="space-y-4">
-          {ai ? (
-            <EditForm
-              generationId={gen.id}
-              aiCaptionId={ai.id}
-              body={ai.body}
-              prompt={gen.prompt}
-              model={gen.model}
-              context={gen.context ?? ""}
-            />
-          ) : (
-            <p className="card p-5 text-sm text-muted">This photo has no AI caption.</p>
-          )}
+          <section className="card space-y-4 p-5">
+            <h2 className="font-serif text-xl font-bold">AI caption</h2>
+            {ai ? (
+              <>
+                <p className="rounded-xl bg-paper p-4 font-serif text-lg">“{ai.body}”</p>
+                <dl className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <dt className="text-muted">Flavor</dt>
+                    <dd className="font-medium">{flavor?.name ?? "Before flavors existed"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted">Model</dt>
+                    <dd className="font-mono text-xs">{gen.model}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted">Battles on this caption</dt>
+                    <dd className="font-medium">
+                      {(battles ?? []).length} · AI won {(battles ?? []).filter((b) => b.winner === "ai").length}
+                    </dd>
+                  </div>
+                </dl>
+                <details className="text-sm">
+                  <summary className="cursor-pointer text-accent">Prompt that wrote it</summary>
+                  <pre className="mt-2 max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-paper p-3 text-xs">{gen.prompt}</pre>
+                </details>
+              </>
+            ) : (
+              <p className="text-sm text-muted">This photo has no AI caption yet.</p>
+            )}
+            <div className="border-t border-line pt-4">
+              <p className="text-sm text-muted">
+                AI captions aren&apos;t typed by hand. To change one, rerun a flavor or a different model on this photo.
+              </p>
+              <div className="mt-3">
+                <FlavorRunner
+                  mode="regenerate"
+                  generationId={gen.id}
+                  chains={(chains ?? []) as { id: number; name: string }[]}
+                  models={(models ?? []).map((m) => m.model_id as string)}
+                  battles={(battles ?? []).length}
+                />
+              </div>
+            </div>
+          </section>
+          <EditForm generationId={gen.id} context={gen.context ?? ""} />
           <section className="card border-red-200 p-5">
             <h2 className="font-serif text-xl font-bold text-red-700">Delete</h2>
             <p className="mt-1 text-sm text-muted">Removes the photo, all its captions, votes, and battles. This can&apos;t be undone.</p>
             <form action={removeMedia} className="mt-3">
-              <button className="btn bg-red-600 px-4 py-2 text-white hover:bg-red-700">Delete this media</button>
+              <button className="btn bg-red-600 px-4 py-2 text-white hover:bg-red-700">Delete this post</button>
             </form>
           </section>
         </div>

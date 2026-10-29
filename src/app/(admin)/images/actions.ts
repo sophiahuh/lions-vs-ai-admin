@@ -21,11 +21,11 @@ export async function replaceImage(oldPath: string, newPath: string): Promise<Im
   return { ok: "Image replaced." };
 }
 
-/** DELETE an image that no AI media uses. */
+/** DELETE an image that no post uses. */
 export async function deleteImage(path: string): Promise<ImageState> {
   const { supabase } = await requireAdmin();
   const { data: used } = await supabase.from("generations").select("id").eq("image_path", path).limit(1);
-  if (used?.length) return { error: "This image is used by AI media. Delete that media instead, or replace the image." };
+  if (used?.length) return { error: "This photo is in a post. Delete the post instead, or replace the photo." };
   const { error } = await supabase.storage.from("uploads").remove([path]);
   if (error) return { error: error.message };
   revalidatePath("/images");

@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { fmtDate, requireAdmin, shortName } from "@/lib/admin";
+import { fmtDay, requireAdmin, shortName } from "@/lib/admin";
 import { loadAll } from "@/lib/data";
 
 export default async function MediaPage({ searchParams }: { searchParams: Promise<{ deleted?: string }> }) {
@@ -13,11 +13,13 @@ export default async function MediaPage({ searchParams }: { searchParams: Promis
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="eyebrow">AI media</p>
-          <h1 className="mt-1 font-serif text-4xl font-bold">Photos &amp; AI captions</h1>
-          <p className="mt-1 text-muted">{d.generations.length} generations. Create, edit, or delete.</p>
+          <p className="eyebrow">Content · AI media</p>
+          <h1 className="mt-1 font-serif text-4xl font-bold">Posts</h1>
+          <p className="mt-1 text-muted">
+            {d.generations.length} posts. Each is a photo with one AI caption and the students&apos; captions it battles.
+          </p>
         </div>
-        <Link href="/media/new" className="btn btn-primary px-4 py-2.5">+ New AI media</Link>
+        <Link href="/media/new" className="btn btn-primary px-4 py-2.5">+ New post</Link>
       </div>
       {deleted && <p className="mt-4 rounded-lg border border-line bg-cu-blue-soft p-3 text-sm">Deleted.</p>}
 
@@ -40,7 +42,7 @@ export default async function MediaPage({ searchParams }: { searchParams: Promis
                   {battles.length > 0 && ` · AI ${aiWins}–${battles.length - aiWins}`}
                 </p>
                 <p className="text-xs text-muted">
-                  {shortName(poster?.first_name, poster?.last_name)} · {fmtDate(g.created_at)} · {g.model}
+                  {shortName(poster?.first_name, poster?.last_name)} · {fmtDay(g.created_at)} · {g.model}
                 </p>
               </div>
             </Link>

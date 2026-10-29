@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import FlavorRunner from "@/components/FlavorRunner";
 import { requireAdmin } from "@/lib/admin";
 import { pct } from "@/lib/data";
 import { ChainDetailsForm, DeleteChainButton, StepControls, StepEditor, type ModelOption, type StepRow } from "../ChainForms";
@@ -12,13 +13,13 @@ const PLACEHOLDERS: [string, string][] = [
   ["{{previous}}", "The output of the step before this one. Empty in step 1."],
 ];
 
-export default async function ChainPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function FlavorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: raw } = await params;
   const id = Number(raw);
   if (!Number.isInteger(id)) notFound();
 
   const { supabase } = await requireAdmin();
-  const [{ data: chain }, { data: steps }, { data: mix }, { data: models }, { data: reqs }] = await Promise.all([
+  const [{ data: chain }, { data: steps }, { data: mix }, { data: models }, { data: reqs }, { data: photos }] = await Promise.all([
     supabase.from("prompt_chains").select("id, name, description").eq("id", id).maybeSingle(),
     supabase
       .from("prompt_chain_steps")
@@ -28,6 +29,7 @@ export default async function ChainPage({ params }: { params: Promise<{ id: stri
     supabase.from("prompt_chain_mix").select("chain_id, weight"),
     supabase.from("llm_models").select("id, model_id, is_active").order("priority"),
     supabase.from("generation_requests").select("status").eq("chain_id", id),
+    supabase.from("generations").select("id, image_url").not("image_path", "is", null).order("created_at", { ascending: false }).limit(12),
   ]);
   if (!chain) notFound();
 
@@ -44,7 +46,7 @@ export default async function ChainPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="mx-auto max-w-6xl">
-      <Link href="/chains" className="text-sm font-medium text-accent hover:underline">← All prompt chains</Link>
+      <Link href="/chains" className="text-sm font-medium text-accent hover:underline">← All flavors</Link>
       <h1 className="mt-2 font-serif text-4xl font-bold">{chain.name}</h1>
       {chain.description && <p className="mt-1 max-w-3xl text-muted">{chain.description}</p>}
 
@@ -52,7 +54,7 @@ export default async function ChainPage({ params }: { params: Promise<{ id: stri
         <div>
           <dt className="text-muted">Share of new photos</dt>
           <dd className="mt-0.5 font-semibold">
-            <Link href="/mix" className="text-accent hover:underline">{totalWeight ? pct(weight, totalWeight) : 0}%</Link>
+            <Link href="/chains" className="text-accent hover:underline">{totalWeight ? pct(weight, totalWeight) : 0}%</Link>
           </dd>
         </div>
         <div>
@@ -71,7 +73,7 @@ export default async function ChainPage({ params }: { params: Promise<{ id: stri
 
       {rows.length > 0 && !finalStep && (
         <p className="mt-5 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
-          No step outputs a final caption, so this chain will fail every run. Set the last step&apos;s output to “Final caption”.
+          No step outputs a final caption, so this flavor will fail every run. Set the last step&apos;s output to “Final caption”.
         </p>
       )}
 
@@ -83,6 +85,20 @@ export default async function ChainPage({ params }: { params: Promise<{ id: stri
               {rows.length} call{rows.length === 1 ? "" : "s"} to the model per photo, plus fallback calls when a model is busy.
               Saved changes apply to the very next photo.
             </p>
+          </section>
+
+          <section className="card border-accent/40 p-5">
+            <h2 className="font-serif text-xl font-bold">Test this flavor</h2>
+            <p className="mb-4 mt-0.5 text-sm text-muted">
+              Runs this flavor on a photo that&apos;s already posted and shows what every step returned. Nothing on the photo
+              changes; the run is logged in Caption requests.
+            </p>
+            <FlavorRunner
+              mode="test"
+              chainId={id}
+              photos={(photos ?? []) as { id: string; image_url: string }[]}
+              models={activeFallbacks}
+            />
           </section>
 
           {rows.map((step, i) => (
@@ -110,13 +126,13 @@ export default async function ChainPage({ params }: { params: Promise<{ id: stri
           </details>
 
           <section className="card p-5">
-            <h2 className="font-serif text-xl font-bold">Chain details</h2>
+            <h2 className="font-serif text-xl font-bold">Flavor details</h2>
             <div className="mt-4">
               <ChainDetailsForm chainId={id} name={chain.name} description={chain.description} />
             </div>
             <div className="mt-5 border-t border-line pt-4">
               <DeleteChainButton chainId={id} />
-              <p className="mt-1 text-xs text-muted">Only possible when its chain mix weight is 0.</p>
+              <p className="mt-1 text-xs text-muted">Only possible when its weight is 0.</p>
             </div>
           </section>
         </div>
@@ -127,7 +143,7 @@ export default async function ChainPage({ params }: { params: Promise<{ id: stri
             <p className="mt-1 text-muted">
               Each step tries its own model first, then every active model in priority order
               {activeFallbacks.length ? ` (${activeFallbacks.join(" → ")})` : ""}, then retries the list once.
-              Change the order on <Link href="/models" className="underline">LLM models</Link>.
+              Change the order on <Link href="/models" className="underline">Models &amp; prices</Link>.
             </p>
           </section>
           <section className="card p-4 text-sm">

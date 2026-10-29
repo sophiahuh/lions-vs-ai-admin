@@ -128,15 +128,22 @@ export async function runCaptionPipeline(
     image: { base64: string; mimeType: string };
     humanCaption?: string | null;
     words?: number;
+    /** Admin tests and regenerations can force a flavor instead of rolling the weights. */
+    chainId?: number;
+    /** ...and force a model to be tried first on every step. */
+    model?: string;
   }
 ): Promise<PipelineResult> {
   const started = Date.now();
 
-  // 1. Pick a chain by the admin-controlled mix.
-  const { data: mix } = await supabase.from("prompt_chain_mix").select("chain_id, weight");
-  const chosen = pickWeighted((mix ?? []) as { chain_id: number; weight: number }[]);
-  if (!chosen) throw new Error("No prompt chains are configured.");
-  const chainId = chosen.chain_id;
+  // 1. Pick a chain by the admin-controlled weights, unless one was requested.
+  let chainId = opts.chainId;
+  if (!chainId) {
+    const { data: mix } = await supabase.from("prompt_chain_mix").select("chain_id, weight");
+    const chosen = pickWeighted((mix ?? []) as { chain_id: number; weight: number }[]);
+    if (!chosen) throw new Error("No prompt chains are configured.");
+    chainId = chosen.chain_id;
+  }
 
   // 2. Load the chain's steps, active models, terms, and examples.
   const [stepsRes, modelsRes, termsRes, examplesRes] = await Promise.all([
@@ -194,7 +201,7 @@ export async function runCaptionPipeline(
       // Try each model once in priority order (a step's own model first), then a
       // second pass if time remains. A slow or overloaded model never blocks the
       // fallbacks behind it.
-      const firstPass = [...new Set([...(step.model ? [step.model.model_id] : []), ...modelOrder])];
+      const firstPass = [...new Set([...(opts.model ? [opts.model] : []), ...(step.model ? [step.model.model_id] : []), ...modelOrder])];
       const attempts = [...firstPass, ...firstPass];
       let output = "";
       let lastError = "The AI service is busy. Please try again in a minute.";

@@ -24,7 +24,7 @@ export type Resource = {
 export const RESOURCES = {
   terms: {
     table: "terms",
-    title: "Terms",
+    title: "Columbia terms",
     singular: "term",
     description: "Columbia glossary the AI receives as background. Inactive terms are left out of prompts.",
     orderBy: "term",
@@ -37,7 +37,7 @@ export const RESOURCES = {
   },
   examples: {
     table: "generation_examples",
-    title: "AI generation examples",
+    title: "Example captions",
     singular: "example",
     description: "Captions the AI learns from. Active examples are added to every prompt.",
     orderBy: "created_at",
@@ -50,7 +50,7 @@ export const RESOURCES = {
   },
   models: {
     table: "llm_models",
-    title: "LLM models",
+    title: "Models & prices",
     singular: "model",
     description: "Models the pipeline tries, lowest priority number first. Inactive models are skipped. Prices feed the cost estimates on the dashboard.",
     orderBy: "priority",
@@ -68,7 +68,7 @@ export const RESOURCES = {
   },
   providers: {
     table: "llm_providers",
-    title: "LLM providers",
+    title: "Providers",
     singular: "provider",
     description: "Companies whose models the pipeline can call.",
     orderBy: "name",
@@ -90,7 +90,7 @@ export const RESOURCES = {
   },
   emails: {
     table: "whitelisted_emails",
-    title: "Whitelisted emails",
+    title: "Allowed emails",
     singular: "email",
     description: "Individual addresses allowed to sign in even if their domain isn't on the list.",
     orderBy: "email",

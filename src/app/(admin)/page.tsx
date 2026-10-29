@@ -46,11 +46,26 @@ export default async function Dashboard() {
     <div className="mx-auto max-w-6xl space-y-5">
       <header>
         <p className="eyebrow">Dashboard</p>
-        <h1 className="mt-1 font-serif text-3xl font-bold">Is the app healthy?</h1>
-        <p className="mt-1 text-sm text-muted">Captions getting generated, AI costs in budget, and nobody stuck at a limit.</p>
+        <h1 className="mt-1 font-serif text-3xl font-bold">Who&apos;s winning, and is the app healthy?</h1>
       </header>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <section className="col-span-2 flex flex-col justify-between rounded-2xl bg-navy p-4 text-white lg:col-span-1">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-cu-blue">Lions</p>
+              <p className="font-serif text-5xl font-bold tabular-nums">{t.humanWins}</p>
+            </div>
+            <p className="pb-2 font-serif italic text-white/50">vs.</p>
+            <div className="text-right">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#ff9a73]">AI</p>
+              <p className="font-serif text-5xl font-bold tabular-nums">{t.aiWins}</p>
+            </div>
+          </div>
+          <p className="mt-2 text-xs text-white/70">
+            {t.battles ? `Lions win ${t.humanPct}% of blind battles · ${battlesWeek} this week` : "No battles yet"}
+          </p>
+        </section>
         <Kpi
           label="Caption success · 7 days"
           value={rel.rate == null ? "–" : `${rel.rate}%`}
@@ -72,11 +87,6 @@ export default async function Dashboard() {
           value={String(limits.postsToday)}
           sub={`Limit ${limits.limit}/user · ${limits.usersAtLimit} at the limit`}
           warn={limits.usersAtLimit > 0}
-        />
-        <Kpi
-          label="Battles · 7 days"
-          value={String(battlesWeek)}
-          sub={t.battles ? `Lions ${t.humanWins}–${t.aiWins} AI all time (${t.humanPct}%)` : "No battles yet"}
         />
       </div>
 
@@ -146,7 +156,7 @@ export default async function Dashboard() {
           )}
           <p className="mt-4 text-xs text-muted">
             Costs are estimates at Gemini&apos;s paid list prices, which you can edit on{" "}
-            <Link href="/models" className="underline">LLM models</Link>. On the free tier the real bill is $0.
+            <Link href="/models" className="underline">Models &amp; prices</Link>. On the free tier the real bill is $0.
             {cost.untracked > 0 && ` ${cost.untracked} call${cost.untracked === 1 ? "" : "s"} this month predate token tracking and aren't counted.`}
           </p>
         </Panel>

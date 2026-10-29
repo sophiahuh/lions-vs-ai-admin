@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { fmtDate, requireAdmin, shortName } from "@/lib/admin";
+import { fmtDay, requireAdmin, shortName } from "@/lib/admin";
 import { ImageActions, UploadImage } from "./ImageTools";
 
 type Obj = { name: string; created_at: string | null; metadata: { size?: number } | null };
@@ -33,10 +33,10 @@ export default async function ImagesPage() {
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="eyebrow">Content</p>
-          <h1 className="mt-1 font-serif text-4xl font-bold">Images</h1>
+          <p className="eyebrow">Content · images</p>
+          <h1 className="mt-1 font-serif text-4xl font-bold">Image files</h1>
           <p className="mt-1 text-muted">
-            Every uploaded photo ({files.length}). Replacing an image updates any AI media that uses it.
+            Every photo file in storage ({files.length}). Replacing a file updates the post that shows it.
           </p>
         </div>
         <UploadImage adminId={user.id} />
@@ -51,12 +51,12 @@ export default async function ImagesPage() {
               <img src={bucket.getPublicUrl(f.path).data.publicUrl} alt="" className="aspect-square w-full bg-cu-blue-soft object-cover" />
               <div className="p-3 text-xs">
                 <p className="text-muted">
-                  {shortName(owner?.first_name, owner?.last_name)} · {fmtDate(f.created_at)} · {Math.round(f.size / 1024)} KB
+                  {shortName(owner?.first_name, owner?.last_name)} · {fmtDay(f.created_at)} · {Math.round(f.size / 1024)} KB
                 </p>
                 {genId ? (
-                  <Link href={`/media/${genId}`} className="mt-1 inline-block font-medium text-accent hover:underline">Used by AI media →</Link>
+                  <Link href={`/media/${genId}`} className="mt-1 inline-block font-medium text-accent hover:underline">Open its post →</Link>
                 ) : (
-                  <p className="mt-1 text-muted">Not used by any media</p>
+                  <p className="mt-1 text-muted">Not in any post</p>
                 )}
                 <ImageActions adminId={user.id} path={f.path} used={!!genId} />
               </div>

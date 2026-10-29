@@ -42,6 +42,12 @@ export function shortName(first: string | null | undefined, last: string | null 
   return l ? `${f} ${l[0].toUpperCase()}.` : f;
 }
 
+/** Date only, for content where the time of day doesn't matter. */
+export function fmtDay(iso: string | null | undefined) {
+  if (!iso) return "–";
+  return new Date(iso).toLocaleDateString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", year: "numeric" });
+}
+
 export function fmtDate(iso: string | null | undefined) {
   if (!iso) return "–";
   return new Date(iso).toLocaleString("en-US", {

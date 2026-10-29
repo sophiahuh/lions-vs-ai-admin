@@ -36,8 +36,8 @@ export default async function ResponsesPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <p className="eyebrow">Observability</p>
-      <h1 className="mt-1 font-serif text-4xl font-bold">LLM responses</h1>
+      <p className="eyebrow">Logs · LLM responses</p>
+      <h1 className="mt-1 font-serif text-4xl font-bold">Model calls</h1>
       <p className="mt-1 text-muted">Every raw model call, including failures and fallbacks. Latest 200.</p>
 
       {byModel.size > 0 && (
