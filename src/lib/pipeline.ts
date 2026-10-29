@@ -83,7 +83,7 @@ async function callGemini(opts: {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY ?? "" },
       body: JSON.stringify(body),
-      signal: AbortSignal.timeout(20_000),
+      signal: AbortSignal.timeout(15_000),
     });
     const json = await res.json().catch(() => null);
     const text: string =
@@ -175,12 +175,16 @@ export async function runCaptionPipeline(
       const user = render(step.user_template, vars);
       promptLog.push(`STEP ${step.step_order}: ${step.name}\nSYSTEM:\n${system}\n\nUSER:\n${user}${step.include_image ? "\n[photo attached]" : ""}`);
 
-      const attempts = step.model ? [step.model.model_id, ...modelOrder] : [modelOrder[0], ...modelOrder];
+      // Try each model once in priority order (a step's own model first), then a
+      // second pass if time remains. A slow or overloaded model never blocks the
+      // fallbacks behind it.
+      const firstPass = [...new Set([...(step.model ? [step.model.model_id] : []), ...modelOrder])];
+      const attempts = [...firstPass, ...firstPass];
       let output = "";
       let lastError = "The AI service is busy. Please try again in a minute.";
       for (let i = 0; i < attempts.length && !output; i++) {
-        if (Date.now() - started > BUDGET_MS) break;
-        if (i === 1) await new Promise((r) => setTimeout(r, 1200));
+        if (Date.now() - started > BUDGET_MS - 15_000) break;
+        if (i === firstPass.length) await new Promise((r) => setTimeout(r, 1000));
         const r = await callGemini({
           model: attempts[i],
           system,
