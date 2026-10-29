@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin";
 import { pct } from "@/lib/data";
+import { NewChainForm } from "./ChainForms";
 
 type Step = {
   id: number;
@@ -49,7 +50,10 @@ export default async function ChainsPage() {
       <p className="mt-1 text-muted">
         Each chain is a sequence of model calls that turns a photo into an AI caption. The{" "}
         <Link href="/mix" className="font-medium text-accent hover:underline">chain mix</Link> decides which chain each new photo uses.
+        Open a chain to edit its prompts.
       </p>
+
+      <NewChainForm />
 
       <div className="mt-6 space-y-6">
         {((chains ?? []) as unknown as Chain[]).map((c) => {
@@ -58,8 +62,13 @@ export default async function ChainsPage() {
           return (
             <section key={c.id} className="card p-5">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="font-serif text-2xl font-bold">{c.name}</h2>
-                <span className="rounded-full bg-cu-blue-soft px-3 py-1 text-sm font-semibold">Mix weight {mix?.weight ?? 0}</span>
+                <h2 className="font-serif text-2xl font-bold">
+                  <Link href={`/chains/${c.id}`} className="hover:underline">{c.name}</Link>
+                </h2>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-cu-blue-soft px-3 py-1 text-sm font-semibold">Mix weight {mix?.weight ?? 0}</span>
+                  <Link href={`/chains/${c.id}`} className="btn btn-primary px-4 py-1.5 text-sm">Edit prompts</Link>
+                </div>
               </div>
               {c.description && <p className="mt-1 text-sm text-muted">{c.description}</p>}
 
@@ -78,26 +87,17 @@ export default async function ChainsPage() {
                 ))}
               </dl>
 
-              <ol className="mt-5 space-y-3">
+              <ol className="mt-5 space-y-2">
                 {[...c.steps].sort((a, b) => a.step_order - b.step_order).map((step) => (
-                  <li key={step.id} className="rounded-xl border border-line p-4">
-                    <p className="font-semibold">
-                      Step {step.step_order}: {step.name}
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted">
-                      Output: {step.output_format === "caption_json" ? "final caption" : "text for the next step"} · Photo
-                      attached: {step.include_image ? "yes" : "no"} · Model: {step.model?.model_id ?? "by priority"}
-                    </p>
-                    <details className="mt-2 text-sm">
-                      <summary className="cursor-pointer text-accent">System prompt</summary>
-                      <pre className="mt-2 whitespace-pre-wrap rounded-lg bg-paper p-3 text-xs">{step.system_prompt}</pre>
-                    </details>
-                    <details className="mt-1 text-sm">
-                      <summary className="cursor-pointer text-accent">User template</summary>
-                      <pre className="mt-2 whitespace-pre-wrap rounded-lg bg-paper p-3 text-xs">{step.user_template}</pre>
-                    </details>
+                  <li key={step.id} className="rounded-xl border border-line px-4 py-3 text-sm">
+                    <span className="font-semibold">Step {step.step_order}: {step.name}</span>
+                    <span className="text-muted">
+                      {" "}· {step.output_format === "caption_json" ? "final caption" : "notes for the next step"} · photo{" "}
+                      {step.include_image ? "attached" : "not attached"} · {step.model?.model_id ?? "model by priority"}
+                    </span>
                   </li>
                 ))}
+                {c.steps.length === 0 && <li className="text-sm text-muted">No steps yet. Open the chain to add one.</li>}
               </ol>
             </section>
           );

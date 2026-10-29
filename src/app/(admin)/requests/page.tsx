@@ -22,15 +22,18 @@ const STATUS: Record<string, string> = {
   pending: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
 };
 
-export default async function RequestsPage() {
+export default async function RequestsPage({ searchParams }: { searchParams: Promise<{ chain?: string }> }) {
   const { supabase } = await requireAdmin();
-  const { data } = await supabase
+  const chainId = Number((await searchParams).chain) || null;
+  let query = supabase
     .from("generation_requests")
     .select(
       "id, status, source, error, latency_ms, created_at, generation_id, user:profiles(first_name, last_name), chain:prompt_chains(name), generation:generations(image_url), responses:llm_responses(id, model, http_status, success, latency_ms, response_text, step:prompt_chain_steps(step_order, name))"
     )
     .order("created_at", { ascending: false })
     .limit(100);
+  if (chainId) query = query.eq("chain_id", chainId);
+  const { data } = await query;
   const rows = (data ?? []) as unknown as Req[];
 
   return (
@@ -38,6 +41,11 @@ export default async function RequestsPage() {
       <p className="eyebrow">Observability</p>
       <h1 className="mt-1 font-serif text-4xl font-bold">Generation requests</h1>
       <p className="mt-1 text-muted">Every attempt to generate an AI caption, newest first. Open one to see each model call it made.</p>
+      {chainId && (
+        <p className="mt-2 text-sm">
+          Showing one chain only. <Link href="/requests" className="font-medium text-accent hover:underline">Show all chains</Link>
+        </p>
+      )}
 
       {rows.length === 0 && <p className="card mt-6 p-6 text-center text-muted">No requests yet. They appear as soon as someone posts a photo.</p>}
       <ul className="mt-6 space-y-2">
