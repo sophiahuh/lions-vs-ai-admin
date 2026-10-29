@@ -16,7 +16,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/">) {
           </p>
           <span className="rounded bg-[#d9480f] px-1.5 py-0.5 text-[10px] font-bold tracking-widest md:mt-1 md:inline-block">ADMIN</span>
         </div>
-        <div className="px-3 pb-3 md:flex-1">
+        <div className="px-3 pb-3 md:flex-1 md:overflow-y-auto">
           <Nav />
         </div>
         <div className="hidden items-center gap-3 border-t border-white/10 px-4 py-4 md:flex">

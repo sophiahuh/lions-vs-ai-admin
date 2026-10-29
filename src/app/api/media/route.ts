@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { buildUserPrompt, describePrompt, generateCaption } from "@/lib/gemini";
+import { linkRequest, runCaptionPipeline } from "@/lib/pipeline";
 import { createClient } from "@/lib/supabase/server";
 
 export const maxDuration = 60;
@@ -28,17 +28,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Could not read the uploaded photo." }, { status: 400 });
   }
 
-  const userPrompt = buildUserPrompt({ humanCaption, words });
   try {
-    const { model, caption } = await generateCaption({
-      imageBase64: Buffer.from(await file.arrayBuffer()).toString("base64"),
-      mimeType: file.type,
-      userPrompt,
+    const { model, caption, chainId, prompt, requestId } = await runCaptionPipeline(supabase, {
+      userId: user.id,
+      source: "admin",
+      image: { base64: Buffer.from(await file.arrayBuffer()).toString("base64"), mimeType: file.type },
+      humanCaption,
+      words,
     });
     const imageUrl = supabase.storage.from("uploads").getPublicUrl(imagePath).data.publicUrl;
     const { data: gen, error: genError } = await supabase
       .from("generations")
-      .insert({ user_id: user.id, image_path: imagePath, image_url: imageUrl, prompt: describePrompt(userPrompt), model })
+      .insert({ user_id: user.id, image_path: imagePath, image_url: imageUrl, prompt, model, prompt_chain_id: chainId })
       .select("id")
       .single();
     if (genError) throw genError;
@@ -50,6 +51,7 @@ export async function POST(request: Request) {
       await supabase.from("generations").delete().eq("id", gen.id);
       throw capError;
     }
+    await linkRequest(supabase, requestId, gen.id);
     return NextResponse.json({ id: gen.id });
   } catch (err) {
     await supabase.storage.from("uploads").remove([imagePath]);
