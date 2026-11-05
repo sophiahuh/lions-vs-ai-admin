@@ -40,7 +40,6 @@ export default async function FlavorPage({ params }: { params: Promise<{ id: str
   const weight = weights.find((w) => w.chain_id === id)?.weight ?? 0;
   const totalWeight = weights.reduce((n, w) => n + w.weight, 0);
   const runs = reqs ?? [];
-  const failed = runs.filter((r) => r.status === "failed").length;
   const finalStep = rows.findLast((s) => s.output_format === "caption_json");
   const activeFallbacks = modelOptions.filter((m) => m.is_active).map((m) => m.model_id);
 
@@ -65,7 +64,7 @@ export default async function FlavorPage({ params }: { params: Promise<{ id: str
           <dt className="text-muted">Runs</dt>
           <dd className="mt-0.5 font-semibold">
             <Link href={`/requests?chain=${id}`} className="text-accent hover:underline">
-              {runs.length} run{runs.length === 1 ? "" : "s"}{failed ? ` · ${failed} failed` : ""}
+              {runs.length} run{runs.length === 1 ? "" : "s"}
             </Link>
           </dd>
         </div>

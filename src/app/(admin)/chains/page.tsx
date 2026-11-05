@@ -39,7 +39,6 @@ export default async function FlavorsPage() {
     const avg = ok.length ? Math.round(ok.reduce((n, r) => n + (r.latency_ms ?? 0), 0) / ok.length / 100) / 10 : null;
     return {
       runs: rs.length,
-      failed: rs.length - ok.length,
       photos: photos.size,
       avgSeconds: avg,
       aiWinRate: bs.length ? `${pct(bs.filter((b) => b.winner === "ai").length, bs.length)}%` : "–",
@@ -106,10 +105,9 @@ export default async function FlavorsPage() {
                 {steps.length === 0 && <li className="text-muted">No steps yet.</li>}
               </ol>
 
-              <dl className="mt-4 grid grid-cols-2 gap-3 text-center sm:grid-cols-5">
+              <dl className="mt-4 grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
                 {[
                   ["Runs", s.runs],
-                  ["Failed", s.failed],
                   ["Photos captioned", s.photos],
                   ["Avg. time", s.avgSeconds == null ? "–" : `${s.avgSeconds}s`],
                   ["AI win rate", s.aiWinRate],
