@@ -201,17 +201,17 @@ export async function runCaptionPipeline(
       const user = render(step.user_template, vars);
       promptLog.push(`STEP ${step.step_order}: ${step.name}\nSYSTEM:\n${system}\n\nUSER:\n${user}${step.include_image ? "\n[photo attached]" : ""}`);
 
-      // Try each model once in priority order (a step's own model first), then a
-      // second pass if time remains. A slow or overloaded model never blocks the
-      // fallbacks behind it.
+      // Try each model once in priority order (a step's own model first), then keep
+      // going around with a pause while time remains: overload usually clears in
+      // seconds. A slow or overloaded model never blocks the fallbacks behind it.
       const firstPass = [...new Set([...(opts.model ? [opts.model] : []), ...(step.model ? [step.model.model_id] : []), ...modelOrder])];
-      const attempts = [...firstPass, ...firstPass];
+      const attempts = Array.from({ length: 5 }, () => firstPass).flat();
       let output = "";
       let lastError = "The AI service is busy. Please try again in a minute.";
       for (let i = 0; i < attempts.length && !output; i++) {
         if (Date.now() - started > BUDGET_MS - 15_000) break;
         if (i > 0 && Date.now() > stepDeadline) break;
-        if (i === firstPass.length) await new Promise((r) => setTimeout(r, 1000));
+        if (i > 0 && i % firstPass.length === 0) await new Promise((r) => setTimeout(r, 3000));
         const r = await callGemini({
           model: attempts[i],
           system,
