@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { linkRequest, runCaptionPipeline } from "@/lib/pipeline";
 import { createClient } from "@/lib/supabase/server";
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 /**
  * Runs a flavor on an existing photo.

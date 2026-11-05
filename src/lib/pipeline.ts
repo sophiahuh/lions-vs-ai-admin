@@ -28,7 +28,7 @@ export type PipelineResult = {
 };
 
 const FALLBACK_MODELS = ["gemini-3.5-flash", "gemini-3.5-flash-lite"];
-const BUDGET_MS = 50_000;
+const BUDGET_MS = 110_000;
 
 function render(template: string, vars: Record<string, string>) {
   return template
@@ -193,7 +193,10 @@ export async function runCaptionPipeline(
   let caption = "";
   let usedModel = "";
   try {
-    for (const step of steps) {
+    for (const [stepIndex, step] of steps.entries()) {
+      // Each step gets an even share of the time left, so an overloaded model on
+      // an early step can't use up the time later steps need.
+      const stepDeadline = Date.now() + (BUDGET_MS - (Date.now() - started)) / (steps.length - stepIndex);
       const system = step.system_prompt;
       const user = render(step.user_template, vars);
       promptLog.push(`STEP ${step.step_order}: ${step.name}\nSYSTEM:\n${system}\n\nUSER:\n${user}${step.include_image ? "\n[photo attached]" : ""}`);
@@ -207,6 +210,7 @@ export async function runCaptionPipeline(
       let lastError = "The AI service is busy. Please try again in a minute.";
       for (let i = 0; i < attempts.length && !output; i++) {
         if (Date.now() - started > BUDGET_MS - 15_000) break;
+        if (i > 0 && Date.now() > stepDeadline) break;
         if (i === firstPass.length) await new Promise((r) => setTimeout(r, 1000));
         const r = await callGemini({
           model: attempts[i],

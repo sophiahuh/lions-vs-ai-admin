@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { linkRequest, runCaptionPipeline } from "@/lib/pipeline";
 import { createClient } from "@/lib/supabase/server";
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 /** CREATE: an admin uploads a photo and Gemini writes its AI caption. */

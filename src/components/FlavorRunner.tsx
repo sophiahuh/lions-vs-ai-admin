@@ -102,7 +102,7 @@ export default function FlavorRunner(props: {
           </select>
         </label>
         <button type="button" onClick={run} disabled={busy || !photo} className="btn btn-primary px-4 py-2.5">
-          {busy ? "Running… (up to a minute)" : regenerate ? "Regenerate AI caption" : "Run test"}
+          {busy ? "Running… (up to two minutes)" : regenerate ? "Regenerate AI caption" : "Run test"}
         </button>
       </div>
 
