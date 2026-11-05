@@ -223,17 +223,20 @@ export async function runCaptionPipeline(
             parsed = "";
           }
         }
-        await supabase.from("llm_responses").insert({
+        const call = {
           request_id: requestId,
           step_id: step.id,
           model: attempts[i],
           http_status: r.status,
           success: !!parsed,
           latency_ms: r.latency,
-          input_tokens: r.inputTokens,
-          output_tokens: r.outputTokens,
           response_text: r.text.slice(0, 4000),
-        });
+        };
+        const { error: logError } = await supabase
+          .from("llm_responses")
+          .insert({ ...call, input_tokens: r.inputTokens, output_tokens: r.outputTokens });
+        // Keep the log even if the token columns haven't been added to this database yet.
+        if (logError) await supabase.from("llm_responses").insert(call);
         if (parsed) {
           output = parsed;
           usedModel = attempts[i];
